@@ -3,62 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velocity Script Hub</title>
+    <title>Velocity Hacker Hub ⚡️</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #0f0f0f; 
-            color: #ffffff; 
-            text-align: center;
-            padding: 20px;
+        #matrix { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        body { background-color: #000; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+
+        /* หัวข้อ */
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 15px #00ff88; }
+            20%, 24%, 55% { text-shadow: none; }
         }
-        .header { margin-bottom: 30px; }
-        .card { 
-            background: #1e1e1e; 
-            border: 1px solid #333;
-            padding: 20px; 
-            border-radius: 15px; 
-            max-width: 400px;
-            margin: 0 auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        h1 { color: #00ff88; font-size: 32px; animation: flicker 2s infinite alternate; }
+
+        /* UI สคริปต์หลัก */
+        .main-card { 
+            background: rgba(10, 10, 10, 0.9); border: 2px solid #00ff88; border-radius: 20px; 
+            width: 100%; max-width: 450px; padding: 25px; box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+            position: relative;
         }
-        .btn-copy { 
-            background: #00ff88; 
-            color: #000;
-            border: none; 
-            padding: 12px 25px; 
-            border-radius: 8px;
-            font-weight: bold; 
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
+        .script-box { background: #000; border-left: 5px solid #00ff88; padding: 15px; border-radius: 10px; color: #00ff88; font-family: monospace; word-break: break-all; margin: 20px 0; text-align: left; }
+        .btn-green { background: #00ff88; color: #000; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
+
+        /* UI แจ้งเตือน Custom */
+        #customNotify {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center;
         }
-        .btn-copy:active { background: #00cc6e; }
+        .notify-box {
+            background: #000; border: 2px solid #00ff88; padding: 25px; border-radius: 20px;
+            text-align: center; width: 80%; max-width: 280px; box-shadow: 0 0 40px rgba(0,255,136,0.4);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .notify-box h3 { color: #00ff88; margin-top: 0; }
+        .btn-ok { background: #00ff88; color: #000; border: none; padding: 8px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+
+        /* Login UI (แก้ไขช่องกรอกรหัส) */
+        #loginOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .login-box { background: #0a0000; border: 2px solid #ff0000; padding: 30px; border-radius: 25px; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 0 50px rgba(255,0,0,0.4); }
+        
+        /* เปลี่ยนเป็นแบบ -webkit-text-security เพื่อซ่อนรหัสแต่ไม่ใช้โหมด password */
+        .login-box input { 
+            width: 100%; background: #111; border: 1px solid #444; color: #fff; 
+            padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; 
+            outline: none; font-size: 16px;
+            -webkit-text-security: disc; /* ซ่อนตัวอักษรเป็นจุดโดยไม่ใช้โหมดนิรภัย */
+        }
+
+        #adminPanel { display: none; margin-top: 25px; width: 100%; max-width: 450px; }
+        .admin-card { background: linear-gradient(145deg, #1a0000, #050505); border: 2px solid #ff0000; border-radius: 20px; padding: 25px; box-shadow: 0 0 30px rgba(255,0,0,0.2); }
+        textarea { width: 100%; height: 120px; background: #000; color: #ff4444; border: 1px solid #ff000033; border-radius: 12px; padding: 15px; margin: 15px 0; resize: none; outline: none; font-family: monospace; }
+        .btn-red { background: #ff0000; color: #fff; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+        .info-panel { margin-top: 25px; width: 100%; max-width: 450px; text-align: left; font-size: 14px; color: #ccc; background: rgba(15, 15, 15, 0.9); padding: 15px; border-radius: 12px; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Velocity Script 🚀</h1>
-        <p>ศูนย์รวมสคริปต์ Roblox คุณภาพ</p>
+    <canvas id="matrix"></canvas>
+    <h1>Velocity Hub ⚡️</h1>
+
+    <div class="main-card" id="userInterface">
+        <h2 style="margin:0;">Main Script Loader</h2>
+        <div class="script-box" id="scriptCode">loadstring(game:HttpGet('https://raw.githubusercontent.com/Example/Main/loader.lua'))()</div>
+        <button class="btn-green" onclick="copyText()">คัดลอกสคริปต์ (COPY)</button>
+        <p style="font-size: 10px; color: #222; cursor: pointer; margin-top: 20px;" onclick="openLogin()">[ ADMIN LOGIN ]</p>
     </div>
 
-    <div class="card">
-        <h3>Blox Fruits: Auto Farm</h3>
-        <p>อัปเดตล่าสุด: เมษายน 2026</p>
-        <button class="btn-copy" onclick="copyText()">Copy Script</button>
+    <div id="customNotify">
+        <div class="notify-box">
+            <h3 id="notifyTitle">สำเร็จ!</h3>
+            <p id="notifyMsg" style="color: #ccc; font-size: 14px;">ข้อความแจ้งเตือน</p>
+            <button class="btn-ok" onclick="closeNotify()">ตกลง</button>
+        </div>
+    </div>
+
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2 style="color: #ff0000; margin-top:0;">ACCESS CONTROL</h2>
+            <input type="text" id="passInput" placeholder="ENTER PASSWORD" autocomplete="off">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-red" style="flex:2;" onclick="checkPass()">LOGIN</button>
+                <button class="btn-red" style="flex:1; background:#333;" onclick="closeLogin()">EXIT</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPanel">
+        <div class="admin-card">
+            <h2 style="color:#ff0000; margin-top:0;">ADMIN CONTROL</h2>
+            <textarea id="newScriptInput" placeholder="วางสคริปต์ใหม่ที่นี่..."></textarea>
+            <button class="btn-red" onclick="updateScript()">ยืนยันการเปลี่ยนสคริปต์</button>
+        </div>
     </div>
 
     <script>
-        function copyText() {
-            // ใส่ลิงก์สคริปต์ของคุณในเครื่องหมายคำพูดด้านล่างนี้
-            const scriptCode = "loadstring(game:HttpGet('https://raw.githubusercontent.com/Example/Main/main.lua'))()";
-            
-            navigator.clipboard.writeText(scriptCode).then(() => {
-                alert("คัดลอกสคริปต์ไปใช้ได้เลย!");
-            });
-        }
-    </script>
+        const ADMIN_PASSWORD = "Hacker_Safe_88"; 
 
+        function showNotify(title, msg) {
+            document.getElementById('notifyTitle').innerText = title;
+            document.getElementById('notifyMsg').innerText = msg;
+            document.getElementById('customNotify').style.display = 'flex';
+        }
+        function closeNotify() { document.getElementById('customNotify').style.display = 'none'; }
+        function openLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
+        function closeLogin() { document.getElementById('loginOverlay').style.display = 'none'; }
+
+        function checkPass() {
+            if (document.getElementById('passInput').value === ADMIN_PASSWORD) {
+                closeLogin();
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('userInterface').style.opacity = '0.5';
+                document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('passInput').value = ""; // ล้างรหัสหลังเข้าได้
+            } else {
+                showNotify("ผิดพลาด!", "รหัสผ่านไม่ถูกต้อง");
+            }
+        }
+
+        function updateScript() {
+            const newCode = document.getElementById('newScriptInput').value;
+            if (newCode) {
+                document.getElementById('scriptCode').innerText = newCode;
+                document.getElementById('userInterface').style.opacity = '1';
+                document.getElementById('adminPanel').style.display = 'none';
+                showNotify("อัปเดตสำเร็จ!", "สคริปต์บนหน้าเว็บถูกเปลี่ยนแล้ว");
+            }
+        }
+
+        function copyText() {
+            navigator.clipboard.writeText(document.getElementById('scriptCode').innerText);
+            showNotify("คัดลอกสำเร็จ!", "นำไปวางในโปรแกรมรันได้เลย");
+        }
+
+        // Matrix Effect
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const alphabet = '01';
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+        const draw = () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+            for (let i = 0; i < drops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        };
+        setInterval(draw, 35);
+    </script>
 </body>
 </html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velocity Script Hub</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #0f0f0f; 
+            color: #ffffff; 
+            text-align: center;
+            padding: 20px;
+        }
+        .header { margin-bottom: 30px; }
+        .card { 
+            background: #1e1e1e; 
+            border: 1px solid #333;
+            padding: 20px; 
+            border-radius: 15px; 
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .btn-copy { 
+            background: #00ff88; 
+            color: #000;
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 8px;
+            font-weight: bold; 
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        .btn-copy:active { background: #00cc6e; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Velocity Script 🚀</h1>
+        <p>ศูนย์รวมสคริปต์ Roblox คุณภาพ</p>
+    </div>
+
+    <div class="card">
+        <h3>Blox Fruits: Auto Farm</h3>
+        <p>อัปเดตล่าสุด: เมษายน 2026</p>
+        <button class="btn-copy" onclick="copyText()">Copy Script</button>
+    </div>
+
+    <script>
+        function copyText() {
+            // ใส่ลิงก์สคริปต์ของคุณในเครื่องหมายคำพูดด้านล่างนี้
+            const scriptCode = "loadstring(game:HttpGet('https://raw.githubusercontent.com/Example/Main/main.lua'))()";
+            
+            navigator.clipboard.writeText(scriptCode).then(() => {
+                alert("คัดลอกสคริปต์ไปใช้ได้เลย!");
+            });
+        }
+    </script>
+
+</body>
+</html>
